@@ -11,7 +11,7 @@ class Hyperv(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
         self.add_copy_spec([
             "/sys/bus/vmbus/drivers/",
             "/sys/bus/vmbus/devices/*/*",
-            "/boot/config-*-azure"
+            "/boot/config-*"
         ])
 
         self.add_cmd_output("lsvmbus -vv")
