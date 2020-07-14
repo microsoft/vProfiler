@@ -13,18 +13,16 @@ class Hyperv(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     """Hyper-V client information"""
 
     plugin_name = "hyperv"
-    files = ('/sys/bus/vmbus/', '/boot/config-*')
+    files = ('/sys/bus/vmbus/')
 
     def setup(self):
 
         self.add_copy_spec([
             "/sys/bus/vmbus/drivers/",
             # copy devices/*/* instead of devices/ to follow link files
-            "/sys/bus/vmbus/devices/*/*",
-            "/boot/config-*"
+            "/sys/bus/vmbus/devices/*/*"
         ])
 
         self.add_cmd_output("lsvmbus -vv")
-        self.add_cmd_output("lspci -vv")
 
 # vim: set et ts=4 sw=4 :
