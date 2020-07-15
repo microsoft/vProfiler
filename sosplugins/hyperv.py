@@ -13,7 +13,7 @@ class Hyperv(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     """Hyper-V client information"""
 
     plugin_name = "hyperv"
-    files = ('/sys/bus/vmbus/')
+    files = ('/sys/bus/vmbus/',)
 
     def setup(self):
 
