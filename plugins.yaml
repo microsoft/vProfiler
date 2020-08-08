@@ -28,7 +28,9 @@ upload:
         - FILE
         - URL
     cmds:
-        - echo 'python upload.py FILE "URL"'
+        - cat upload.py
+        - echo 'FILE "URL"'
 
 default:
     generate: True
+

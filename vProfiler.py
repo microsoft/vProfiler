@@ -1,9 +1,15 @@
 #!/usr/bin/env python3
-import yaml
 import os
 import argparse
 import re
 import sys
+
+try:
+    import yaml
+except ModuleNotFoundError:
+    print("The python package yaml is required for this tool.", file=sys.stderr)
+    print("Please try pip install pyyaml", file=sys.stderr)
+    quit()
 
 def replace(string, substitutions):
     substrings = sorted(substitutions, key=len, reverse=True)
@@ -19,20 +25,24 @@ except ModuleNotFoundError:
         import platform
         LNX_DST = platform.linux_distribution()[0]
     except ModuleNotFoundError:
-        print("Could not determine Linux Distribution", "Please pip install distro or platform")
+        print("Could not determine Linux Distribution", "Please pip install distro or platform", file=sys.stderr)
 
 parser = argparse.ArgumentParser()
 
 with open("plugins.yaml", "r") as file:
-    plugins = yaml.load(file)
-    for name in plugins:
-        if name == "default":
-            continue
-        plugin = plugins[name]
-        if "params" in plugin:
-            parser.add_argument("--"+name, nargs=len(plugin["params"]), help=plugin["description"], type=str, metavar=tuple(plugin["params"]))
-        else:
-            parser.add_argument("--"+name, help=plugin["description"], action="store_true")
+    plugins = yaml.safe_load(file)
+for name in plugins:
+    if name == "default":
+        continue
+    plugin = plugins[name]
+    if not "description" in plugin:
+        print(name + " Error: decription field is required", file=sys.stderr)
+        print("This will cause a runtime error if the plugin is activated in default behavior.\n", file=sys.stderr)
+        continue
+    if "params" in plugin:
+        parser.add_argument("--"+name, nargs=len(plugin["params"]), help=plugin["description"], type=str, metavar=tuple(plugin["params"]))
+    else:
+        parser.add_argument("--"+name, help=plugin["description"], action="store_true")
 
 args = vars(parser.parse_args())
 if len(sys.argv) == 1:
@@ -52,11 +62,14 @@ for name in args:
         continue
     if args[name] and "cmds" in plugin:
         if "params" in plugin:
+            if len(plugin["params"]) != len(args[name]):
+                print(name + " Error: incorrect number of parameters", file=sys.stderr)
+                continue
             subs = {}
             for (var, val) in zip(plugin["params"], args[name]):
                 subs[var] = val
             for cmd in plugin["cmds"]:
-                os.system(replace(cmd, subs))
+                os.system("cd plugins;" + replace(cmd, subs))
         else:
             for cmd in plugin["cmds"]:
-                os.system(cmd)
+                os.system("cd plugins;" + cmd)
