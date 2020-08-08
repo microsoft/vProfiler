@@ -1,8 +1,0 @@
-
-upload, upload a file to blob storage, FILE, URL
-generate, generate a sosreport
-
-===
-
-generate, python generate.py
-upload, python upload.py FILE "URL"

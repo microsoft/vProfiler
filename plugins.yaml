@@ -1,0 +1,34 @@
+
+sosreport:
+    description: gernerate a sosreport
+    supported_distros:
+        - Ubuntu
+        - Red Hat Enterprise Linux
+        - Debian GNU/Linux
+        - CentOS Linux
+    cmds:
+        - echo "Not SUSE"
+
+supportconfig:
+    description: generate a supportconfig report
+    supported_distros:
+        - SLES
+    cmds:
+        - echo "SUSE"
+
+generate:
+    description: generate a report
+    also_run:
+        sosreport: True
+        supportconfig: True
+
+upload:
+    description: upload a file to blob storage
+    params:
+        - FILE
+        - URL
+    cmds:
+        - echo 'python upload.py FILE "URL"'
+
+default:
+    generate: True
