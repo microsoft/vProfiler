@@ -7,14 +7,14 @@ sosreport:
         - Debian GNU/Linux
         - CentOS Linux
     cmds:
-        - echo "Not SUSE"
+        - bash sosreport.sh
 
 supportconfig:
     description: generate a supportconfig report
     supported_distros:
         - SLES
     cmds:
-        - echo "SUSE"
+        - bash supportconfig.sh
 
 generate:
     description: generate a report
@@ -25,11 +25,9 @@ generate:
 upload:
     description: upload a file to blob storage
     params:
-        - FILE
         - URL
     cmds:
-        - cat upload.py
-        - echo 'FILE "URL"'
+        - python upload.py 'URL'
 
 default:
     generate: True
