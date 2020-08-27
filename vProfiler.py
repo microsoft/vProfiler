@@ -11,11 +11,15 @@ except ModuleNotFoundError:
     print("Please try pip install pyyaml", file=sys.stderr)
     quit()
 
+# Used to do plugin paramenter / argument replacement in a single pass
 def replace(string, substitutions):
     substrings = sorted(substitutions, key=len, reverse=True)
     regex = re.compile('|'.join(map(re.escape, substrings)))
     return regex.sub(lambda match: substitutions[match.group(0)], string)
 
+# Get the Linux Distribution for support checking
+#  - platform.linux_distribution() is technically depricated but distro.linux_distribution()
+#    is not yet supported on many LTS distros 
 LNX_DST = None
 try:
     import distro
@@ -27,41 +31,61 @@ except ModuleNotFoundError:
     except ModuleNotFoundError:
         print("Could not determine Linux Distribution", "Please pip install distro or platform", file=sys.stderr)
 
-parser = argparse.ArgumentParser()
+# ARGUMENT PARSING
+parser = argparse.ArgumentParser(add_help=False)
+parser.add_argument("--config", help="Sets the YAML file to use as list of plugins",
+                    metavar="FILE", default="plugins.yaml")
+parser.add_argument("--quiet", help="Suppress output messages", action="store_true")
 
-with open("plugins.yaml", "r") as file:
+args = parser.parse_known_args()[0]
+parser = argparse.ArgumentParser(parents=[parser])
+
+# Open the pligin list and populate the argparser
+with open(args.config, "r") as file:
     plugins = yaml.safe_load(file)
 for name in plugins:
     if name == "default":
         continue
     plugin = plugins[name]
     if not "description" in plugin:
-        print(name + " Error: decription field is required", file=sys.stderr)
-        print("This will cause a runtime error if the plugin is activated in default behavior.\n", file=sys.stderr)
-        continue
+        plugin["description"] = ""
     if "params" in plugin:
         parser.add_argument("--"+name, nargs=len(plugin["params"]), help=plugin["description"], type=str, metavar=tuple(plugin["params"]))
     else:
         parser.add_argument("--"+name, help=plugin["description"], action="store_true")
 
 args = vars(parser.parse_args())
-if len(sys.argv) == 1:
+
+# Run default behavior if no plugins are activated by options
+if all((x == "default" or not args[x]) for x in plugins):
     for name in plugins["default"]:
         args[name] = plugins["default"][name]
 
-for name in args:
+# Activate any plugins listed in the "also_run" sections of activated plugins
+for name in plugins:
+    if name == "default":
+        continue
     if args[name] and "also_run" in plugins[name]:
         for plg in plugins[name]["also_run"]:
             args[plg] = plugins[name]["also_run"][plg]
 
-for name in args:
+print("Many of vProfiler's actions require superuser permissions, but vProfiler will not modify your system.")
+if not os.path.exists('logs'):
+    os.makedirs('logs')
+            
+# Run the plugins
+for name in plugins:
     if name == "default":
         continue
     plugin = plugins[name]
     if "supported_distros" in plugin and not LNX_DST in plugin["supported_distros"]:
         continue
     if args[name] and "cmds" in plugin:
+        if "message" in plugin and not args["quiet"]:
+           print(plugin["message"])
         if "params" in plugin:
+            # ArgParse enforces the parameter number so this error only happens
+            #  if there is a mistake in plugins.yaml
             if len(plugin["params"]) != len(args[name]):
                 print(name + " Error: incorrect number of parameters", file=sys.stderr)
                 continue

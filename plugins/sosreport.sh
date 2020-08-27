@@ -1,4 +1,3 @@
 #!/bin/bash
-echo "Now running sosreport (this may take a while)"
-sudo sosreport --batch --quiet --tmp-dir ../logs/
-sudo chown `whoami` ../logs/sosreport*
+sudo sosreport --batch --build --tmp-dir ../logs/
+sudo chown -R `whoami` ../logs/sosreport*

@@ -4,6 +4,8 @@ import os
 import socket
 from datetime import datetime
 
+import glob
+
 def uploadFile(container_url, file_name):
         container = ContainerClient.from_container_url(container_url=container_url)
         blob = container.get_blob_client(file_name)
@@ -11,10 +13,10 @@ def uploadFile(container_url, file_name):
                 blob.upload_blob(data, overwrite=True)
 
 def uploadLogs(container_url):
-        file_name = "vProfiler_" + socket.gethostname() + "_" + datetime.now().strftime("%d%m%Y-%H%M%S") + ".tar.gz"
-        os.chdir("..")
-        os.system("tar -czf " + file_name + " logs")
-        uploadFile(container_url, file_name)
+        os.chdir('..')
+        list_of_tar_files = glob.glob('*.tar.gz')
+        latest_file = max(list_of_tar_files, key=os.path.getctime)
+        uploadFile(container_url, latest_file)
 
 if __name__ == "__main__":
         uploadLogs(sys.argv[1])
