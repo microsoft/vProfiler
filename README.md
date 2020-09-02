@@ -1,3 +1,16 @@
+# vProfiler
+
+vProfiler is a tool for collecting, analyzing, and exporting system information for debugging Linux systems running on HyperV.
+
+Since this tool is meant for log collection and debugging, it may not modify the system in any way without explicite consent from the user.
+
+# Usage
+
+The behavior of vProfiler is determined by the YAML plugin list. By default vProfiler uses `plugins.yaml` but the plugin list file can be changed using `--config FILE`.
+
+Using the `--help` flag will list all of the available options. These options will vary based on the plugins list being used.
+
+In most cases the user will simply run `./vProfiler.py` which will run the default behavior as defined in the plugin list file.
 
 # Contributing
 
