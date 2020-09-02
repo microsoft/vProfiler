@@ -7,7 +7,7 @@ lscpu | grep "^Thread"
 echo
 
 echo "lspci:"
-lspci
+sudo lspci
 
 echo
 

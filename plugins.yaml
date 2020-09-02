@@ -1,6 +1,12 @@
 
+generate:
+    description: generate a report
+    also_run:
+        sosreport: True
+        supportconfig: True
+
 sosreport:
-    description: gernerate a sosreport
+    description: generate a sosreport
     message: Running sosreport (This may take a while)
     supported_distros:
         - Ubuntu
@@ -18,37 +24,28 @@ supportconfig:
     cmds:
         - bash supportconfig.sh
 
-generate:
-    description: generate a report
-    also_run:
-        sosreport: True
-        supportconfig: True
-
-analyze:
+summary:
     description: gathers important information and checks for known errors
     message: Now analyzing logs
     cmds:
-        - bash analyze.sh >> ../logs/report.txt
-        - bash check_network.sh >> ../logs/report.txt
+        - bash summary.sh > ../logs/summary.txt
 
 zip:
-    description: Puts all of the logs into a zipped tarball
+    description: puts all the logs into a zipped tarball
     message: Now compressing logs
     cmds:
         - bash zip.sh
 
 upload:
-    description: upload a file to Azure Blob Storage
+    description: upload the tarball to Azure Blob Storage
     message: Uploading collected logs to Azure Blob Stoarge
     params:
         - URL
-    also_run:
-       zip: True
     cmds:
         - python upload.py 'URL'
 
 default:
     generate: True
-    analyze: True
+    summary: True
     zip: True
 

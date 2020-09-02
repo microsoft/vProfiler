@@ -38,11 +38,14 @@ parser.add_argument("--config", help="Sets the YAML file to use as list of plugi
 parser.add_argument("--quiet", help="Suppress output messages", action="store_true")
 
 args = parser.parse_known_args()[0]
-parser = argparse.ArgumentParser(parents=[parser])
 
 # Open the pligin list and populate the argparser
 with open(args.config, "r") as file:
     plugins = yaml.safe_load(file)
+
+parser = argparse.ArgumentParser(parents=[parser],
+                                 description="A tool to collect, analyze, and export system information from a Linux machine running on HyperV. Many of vProfiler's actions require superuser permissions, but vProfiler will not modify your system.",
+                                 epilog="Default behavior: --" + " --".join(plugins["default"]))
 for name in plugins:
     if name == "default":
         continue
@@ -59,6 +62,8 @@ args = vars(parser.parse_args())
 # Run default behavior if no plugins are activated by options
 if all((x == "default" or not args[x]) for x in plugins):
     for name in plugins["default"]:
+        if name not in args:
+            print("Warning: Default flag " + name + " is not a defined plugin", file=sys.stderr)
         args[name] = plugins["default"][name]
 
 # Activate any plugins listed in the "also_run" sections of activated plugins
@@ -69,7 +74,7 @@ for name in plugins:
         for plg in plugins[name]["also_run"]:
             args[plg] = plugins[name]["also_run"][plg]
 
-print("Many of vProfiler's actions require superuser permissions, but vProfiler will not modify your system.")
+print("Many of vProfiler's actions require superuser permissions, but vProfiler will not modify your system.", flush=True)
 if not os.path.exists('logs'):
     os.makedirs('logs')
             
@@ -82,7 +87,7 @@ for name in plugins:
         continue
     if args[name] and "cmds" in plugin:
         if "message" in plugin and not args["quiet"]:
-           print(plugin["message"])
+           print(plugin["message"], flush=True)
         if "params" in plugin:
             # ArgParse enforces the parameter number so this error only happens
             #  if there is a mistake in plugins.yaml
