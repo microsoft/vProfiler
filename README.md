@@ -14,6 +14,8 @@ In most cases the user will simply run `./vProfiler.py` which will run the defau
 
 # Contributing
 
+A detailed description for how to add a plugin can be found in the [Wiki](https://github.com/microsoft/vProfiler/wiki/Creating-a-Plugin).
+
 This project welcomes contributions and suggestions.  Most contributions require you to agree to a
 Contributor License Agreement (CLA) declaring that you have the right to, and actually do, grant us
 the rights to use your contribution. For details, visit https://cla.opensource.microsoft.com.
