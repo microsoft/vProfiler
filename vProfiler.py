@@ -67,7 +67,7 @@ if all((x == "default" or not args[x]) for x in plugins):
         args[name] = plugins["default"][name]
 
 # Activate any plugins listed in the "also_run" sections of activated plugins
-for name in plugins:
+for name in reversed(plugins):
     if name == "default":
         continue
     if args[name] and "also_run" in plugins[name]:
